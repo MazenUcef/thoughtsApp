@@ -97,7 +97,7 @@ export const signout = async (req, res) => {
 }
 
 
-export const getMe = async (req, res, next) => {
+export const getMe = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select("-password")
         if (!user) {
