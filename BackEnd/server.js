@@ -2,6 +2,7 @@ import express from "express";
 import authRoutes from './routes/auth.routes.js';
 import usersRoutes from './routes/users.routes.js';
 import postRoutes from './routes/posts.routes.js';
+import notificationsRoutes from './routes/notifications.routes.js';
 import dotenv from 'dotenv';
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -32,6 +33,7 @@ app.use(cookieParser())
 app.use("/api/auth", authRoutes)
 app.use("/api/users", usersRoutes)
 app.use("/api/posts", postRoutes)
+app.use("/api/notifications", notificationsRoutes)
 
 
 // console.log(process.env.MONGO_URL);
