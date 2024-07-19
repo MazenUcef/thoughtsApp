@@ -5,19 +5,48 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from './LoadingSpinner';
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
-	const postOwner = post.user;
+	const { data: authUser } = useQuery({ queryKey: ['authUser'] })
+	const queryClient = useQueryClient()
+	const { mutate: deletePost, isPending } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/${post._id}`, {
+					method: 'DELETE'
+				})
+				const data = await res.json()
+				if (!res.ok) {
+					throw new Error(data.error || "Failed to delete post");
+				}
+				return data;
+			} catch (error) {
+				throw new Error("Failed to delete post");
+
+			}
+		},
+		onSuccess: () => {
+			toast.success("Post deleted successfully");
+			// invalidate the post query to fetch the updated data
+			queryClient.invalidateQueries({ queryKey: ["posts"] });
+		}
+
+	})
 	const isLiked = false;
 
-	const isMyPost = true;
+	const isMyPost = authUser._id === post.user._id;
 
 	const formattedDate = "1h";
 
 	const isCommenting = false;
 
-	const handleDeletePost = () => { };
+	const handleDeletePost = () => {
+		deletePost();
+	};
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
@@ -29,23 +58,26 @@ const Post = ({ post }) => {
 		<>
 			<div className='flex gap-2 items-start p-4 border-b border-gray-700'>
 				<div className='avatar'>
-					<Link to={`/profile/${postOwner.username}`} className='w-8 rounded-full overflow-hidden'>
-						<img src={postOwner.profileImg || "/avatar-placeholder.png"} />
+					<Link to={`/profile/${post.username}`} className='w-8 rounded-full overflow-hidden'>
+						<img src={post.user.profileImg || "/avatar-placeholder.png"} />
 					</Link>
 				</div>
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
-						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
-							{postOwner.fullName}
+						<Link to={`/profile/${post.user.username}`} className='font-bold'>
+							{post.user.fullName}
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
-							<Link to={`/profile/${postOwner.username}`}>@{postOwner.username}</Link>
+							<Link to={`/profile/${post.user.username}`}>@{post.user.username}</Link>
 							<span>·</span>
 							<span>{formattedDate}</span>
 						</span>
 						{isMyPost && (
 							<span className='flex justify-end flex-1'>
-								<FaTrash className='cursor-pointer hover:text-third' onClick={handleDeletePost} />
+								<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
+								{isPending && (
+									<LoadingSpinner size="lg" />
+								)}
 							</span>
 						)}
 					</div>
@@ -80,20 +112,20 @@ const Post = ({ post }) => {
 												No comments yet 🤔 Be the first one 😉
 											</p>
 										)}
-										{post.comments.map((comment) => (
+										{post?.comments?.map((comment) => (
 											<div key={comment._id} className='flex gap-2 items-start'>
 												<div className='avatar'>
 													<div className='w-8 rounded-full'>
 														<img
-															src={comment.user.profileImg || "/avatar-placeholder.png"}
+															src={comment.profileImg || "/avatar-placeholder.png"}
 														/>
 													</div>
 												</div>
 												<div className='flex flex-col'>
 													<div className='flex items-center gap-1'>
-														<span className='font-bold'>{comment.user.fullName}</span>
+														<span className='font-bold'>{comment.fullName}</span>
 														<span className='text-gray-700 text-sm'>
-															@{comment.user.username}
+															@{comment.username}
 														</span>
 													</div>
 													<div className='text-sm'>{comment.text}</div>
@@ -138,7 +170,7 @@ const Post = ({ post }) => {
 									className={`text-sm text-slate-500 group-hover:text-pink-500 ${isLiked ? "text-pink-500" : ""
 										}`}
 								>
-									{post.likes.length}
+									{post.length}
 								</span>
 							</div>
 						</div>
