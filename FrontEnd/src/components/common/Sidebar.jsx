@@ -16,25 +16,25 @@ const Sidebar = () => {
 				const res = await fetch("/api/auth/signout", {
 					method: "POST",
 				});
-
+	
 				const data = await res.json();
-
+	
 				if (!res.ok) {
 					throw new Error(data.error || "Something went wrong");
 				}
 			} catch (error) {
-				toast.error(error.message); // Log error messages
+				toast.error(error.message);
 				throw error;
 			}
 		},
 		onSuccess: () => {
-
 			toast.success("Sign out successful");
-
+			queryClient.setQueryData(["authUser"], null); // Clear authUser state
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
+			navigate("/signin"); // Redirect to sign-in page
 		},
 		onError: (error) => {
-			console.error("Sign out error:", error); // Log error for debugging
+			console.error("Sign out error:", error);
 		}
 	});
 	const { data:authUser } = useQuery({ queryKey: ["authUser"] })
@@ -70,7 +70,7 @@ const Sidebar = () => {
 
 					<li className='flex justify-center md:justify-start'>
 						<Link
-							to={`/profile/${authUser.username}`}
+							to={`/profile/${authUser?.username}`}
 							className='flex gap-3 justify-center md:justify-start lg:justify-start items-center hover:bg-third rounded-full md:rounded-none transition-all duration-300 py-2 pl-2 pr-2 md:w-full lg:w-full cursor-pointer'
 						>
 							<FaUser className='w-6 h-6' />
@@ -86,7 +86,7 @@ const Sidebar = () => {
 						>
 							<div className='avatar hidden md:inline-flex'>
 								<div className='w-8 rounded-full'>
-									<img src={authUser.profileImg || "/avatar-placeholder.png"} alt="Profile" />
+									<img src={authUser.profileImage || "/avatar-placeholder.png"} alt="Profile" />
 								</div>
 							</div>
 							<div className='flex justify-between flex-1'>

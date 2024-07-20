@@ -88,66 +88,57 @@ export const getSuggestedUsers = async (req, res) => {
 
 
 export const updateUser = async (req, res) => {
-    const { username, email, fullName, currentPassword, newPassword, bio, link } = req.body;
-    let { profileImage, coverImage } = req.body;
-    // console.log(req.body);
+    const { username, email, fullName, currentPassword, newPassword, bio, link, profileImage, coverImage } = req.body;
 
     const userId = req.user._id;
     try {
-        let user = await User.findById(userId)
+        let user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ error: "User not found" })
+            return res.status(404).json({ error: "User not found" });
         }
         if ((currentPassword && !newPassword) || (!currentPassword && newPassword)) {
-            return res.status(400).json({ error: "Please provide both currentPassword and newPassword or neither" })
+            return res.status(400).json({ error: "Please provide both currentPassword and newPassword or neither" });
         }
         if (currentPassword && newPassword) {
-            const isMatch = await bcryptjs.compare(currentPassword, user.password)
+            const isMatch = await bcryptjs.compare(currentPassword, user.password);
             if (!isMatch) {
-                return res.status(401).json({ error: "Incorrect current password" })
+                return res.status(401).json({ error: "Incorrect current password" });
             }
             if (newPassword.length < 8) {
-                return res.status(400).json({ error: "New password should be at least 8 characters long" })
+                return res.status(400).json({ error: "New password should be at least 8 characters long" });
             }
-            user.password = bcryptjs.hashSync(newPassword, 10)
+            user.password = bcryptjs.hashSync(newPassword, 10);
         }
-
-
 
         if (profileImage) {
             if (user.profileImage) {
                 await cloudinary.uploader.destroy(user.profileImage.split("/").pop().split(".")[0]);
             }
-            const uploadedResponse = await cloudinary.uploader.upload(profileImg);
+            const uploadedResponse = await cloudinary.uploader.upload(profileImage);
             user.profileImage = uploadedResponse.secure_url;
         }
-
 
         if (coverImage) {
             if (user.coverImage) {
                 await cloudinary.uploader.destroy(user.coverImage.split("/").pop().split(".")[0]);
             }
-            const uploadedResponse = await cloudinary.uploader.upload(coverImg);
-            user.coverImage = uploadedResponse.secure_url
+            const uploadedResponse = await cloudinary.uploader.upload(coverImage);
+            user.coverImage = uploadedResponse.secure_url;
         }
+
         user.fullName = fullName || user.fullName;
         user.username = username || user.username;
-        user.email = email || user.email;;
-        user.bio = bio || user.bio;;
+        user.email = email || user.email;
+        user.bio = bio || user.bio;
         user.link = link || user.link;
-        user.coverImage = coverImage || user.coverImage;
-        user.profileImage = profileImage || user.profileImage
-
 
         // Exclude the password from the response
         const { password, ...userWithoutPassword } = user.toObject();
 
-
         user = await user.save();
-        return res.status(200).json(userWithoutPassword)
+        return res.status(200).json(userWithoutPassword);
     } catch (error) {
         console.log("Error in updateUser Controller", error.message);
         res.status(500).json({ error: "Internal Server Error" });
-
     }
 }

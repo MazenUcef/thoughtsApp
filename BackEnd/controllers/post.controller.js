@@ -1,13 +1,14 @@
 import Notification from "../models/notificationModel.js";
 import Post from "../models/postModels.js";
 import User from "../models/userModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const createPost = async (req, res) => {
     try {
         const { text } = req.body;
         let { img } = req.body;
         const userId = req.user._id.toString();
-        
+
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -24,7 +25,7 @@ export const createPost = async (req, res) => {
         const newPost = new Post({
             user: userId,
             user,
-            
+
             text,
             img,
         });
@@ -93,34 +94,36 @@ export const likeUnlikePost = async (req, res) => {
         const userId = req.user._id;
         const { id: postId } = req.params;
 
-
-        const post = await Post.findById(postId);
+        let post = await Post.findById(postId);
         if (!post) return res.status(404).json({ message: "Post not found" });
 
-        const userLikedPost = post.likes?.includes(userId)
+        const userLikedPost = post.likes.includes(userId);
 
         if (userLikedPost) {
             await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
-            await User.updateOne({ _id: userId }, { $pull: { likedPosts: userId } });
-            res.status(200).json({ message: "Post Unliked successfully" });
+            await User.updateOne({ _id: userId }, { $pull: { likedPosts: postId } });
         } else {
-            post.likes?.push(userId);
+            await Post.updateOne({ _id: postId }, { $push: { likes: userId } });
             await User.updateOne({ _id: userId }, { $push: { likedPosts: postId } });
-            await post.save();
             const notification = new Notification({
                 type: "like",
                 from: userId,
                 to: post.user
-            })
+            });
             await notification.save();
-
-            res.status(200).json({ message: "Post Liked successfully" });
         }
+
+        // Fetch the updated post
+        post = await Post.findById(postId);
+
+        res.status(200).json(post);
     } catch (error) {
         console.log("Error in likeUnlikePost Controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
     }
-}
+};
+
+
 
 
 export const getAllPosts = async (req, res) => {
@@ -147,7 +150,7 @@ export const getAllPosts = async (req, res) => {
     }
 };
 
-
+ 
 
 export const getLikedPosts = async (req, res) => {
     const userId = req.params.id;
