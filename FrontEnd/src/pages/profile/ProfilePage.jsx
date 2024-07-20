@@ -145,7 +145,11 @@ const ProfilePage = () => {
                                 {(coverImage || profileImage) && (
                                     <button
                                         className='btn btn-primary rounded-full btn-sm text-white px-4 ml-2'
-                                        onClick={() => updateProfile({ coverImage, profileImage })}
+                                        onClick={async () => {
+                                            await updateProfile({ coverImage, profileImage })
+                                            setprofileImage("")
+                                            setcoverImage("")
+                                        }}
                                     >
                                         {isUpdatingProfile ? "Updating..." : "Update"}
                                     </button>
