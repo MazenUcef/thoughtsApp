@@ -1,29 +1,24 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "server/server.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "FrontEnd/dist/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/server/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/FrontEnd/dist/index.html"
-    }
-  ],
-  "env": {
-    "MONGO_URL": "mongodb+srv://mazenafifi1999:mazenafifi1999@thoughtsapp.r9cpupl.mongodb.net/thoughtsApp?retryWrites=true&w=majority&appName=thoughtsApp",
-    "CLOUDINARY_CLOUD_NAME": "dyweq6pud",
-    "CLOUDINARY_API_KEY": "158899734851988",
-    "CLOUDINARY_API_SECRET": "6dfVo4AJX-ocfm4JI0bZBP-vFLA"
+    "version": 2,
+    "builds": [
+      {
+        "src": "server/server.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "FrontEnd/dist/**/*",
+        "use": "@vercel/static"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/api/(.*)",
+        "dest": "/server/server.js"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/FrontEnd/dist/index.html"
+      }
+    ]
   }
-}
+  

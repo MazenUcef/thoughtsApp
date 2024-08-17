@@ -40,10 +40,10 @@ app.use("/api/posts", postRoutes)
 app.use("/api/notifications", notificationsRoutes)
 if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, "/FrontEnd/dist")))
-    app.get('*', (req, res) => {
-        res.sendFile(path.resolve(__dirname, 'FrontEnd', 'dist', 'index.html'))
-    })
 }
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'FrontEnd', 'dist', 'index.html'));
+});
 
 
 // console.log(process.env.MONGO_URL);
