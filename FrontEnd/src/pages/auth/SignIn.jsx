@@ -63,7 +63,7 @@ const SignIn = () => {
                 <div className='flex mt-10 lg:mt-0 md:mt-0 px-3 w-full flex-col justify-center'>
                     <div className='mb-16 flex justify-start'>
                         <div>
-                            <h1 className='font-medium mb-5 text-6xl'>Welcome To <span className='text-third'>toughts</span> Website and Application</h1>
+                            <h1 className='font-medium mb-5 text-6xl'>Welcome To <span className='text-third'>thoughts</span> Website and Application</h1>
                             <p className='text-xl'>Here You can Write, share, document and explore a lot. Let's Go and gain the benefit</p>
                         </div>
                     </div>

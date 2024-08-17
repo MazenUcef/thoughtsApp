@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "BackEnd/server.js",
   "scripts": {
-    "dev": "NODE_ENV=development nodemon BackEnd/server.js",
-    "start": "cross-env NODE_ENV=production node BackEnd/server.js",
+    "dev": "nodemon BackEnd/server.js",
+    "start": "node BackEnd/server.js",
     "build": "npm install && npm install --prefix FrontEnd && npm run build --prefix FrontEnd"
   },
   "keywords": [],
